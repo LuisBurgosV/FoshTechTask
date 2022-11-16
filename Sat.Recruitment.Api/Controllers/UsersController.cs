@@ -23,7 +23,7 @@ namespace Sat.Recruitment.Api.Controllers
             var errors = ValidateErrors(name, email, address, phone);
 
             if (errors != String.Empty)
-                return NoneSuccessfulResult(errors);
+                return ResultMessage(false, errors);
 
             try
             {
@@ -32,7 +32,7 @@ namespace Sat.Recruitment.Api.Controllers
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                return NoneSuccessfulResult("Failed to normalize email");
+                return ResultMessage(false, "Failed to normalize email");
             }
             
             var newUser = new User
@@ -54,13 +54,13 @@ namespace Sat.Recruitment.Api.Controllers
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                return NoneSuccessfulResult("Failure to read file");
+                return ResultMessage(false, "Failure to read file");
             }
 
             if (UsersFactory.CheckDuplicatedUsers(_users, newUser))
-                return NoneSuccessfulResult("The user is duplicated");
+                return ResultMessage(false, "The user is duplicated");
             else
-                return SuccessfulResult("User Created");
+                return ResultMessage(true, "User Created");
         }
 
         private void ReadUsers()
@@ -105,20 +105,11 @@ namespace Sat.Recruitment.Api.Controllers
             return errors;
         }
 
-        private Result SuccessfulResult(string message)
+        private Result ResultMessage(bool isSuccess, string message)
         {
             return new Result()
             {
-                IsSuccess = true,
-                Errors = message
-            };
-        }
-
-        private Result NoneSuccessfulResult(string message)
-        {
-            return new Result()
-            {
-                IsSuccess = false,
+                IsSuccess = isSuccess,
                 Errors = message
             };
         }
